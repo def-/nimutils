@@ -1,22 +1,29 @@
-import os, memfiles, md5
+import os, md5
+
+const
+  blockSize = 8192
 
 var
+  file: File
+  opened: bool
   c: MD5Context
   d: MD5Digest
+  buf: array[blockSize, char]
+  read: int
 
 for param in commandLineParams():
-  var
-    file: TMemFile
-    opened = true
-
+  opened = true
   try:
-    file = memfiles.open(param)
+    file = open(param)
   except:
     opened = false
 
   c.md5Init()
   if opened:
-    c.md5Update(cast[cstring](file.mem), file.size)
+    read = 1
+    while read > 0:
+      read = file.readBuffer(buf.addr, blockSize)
+      c.md5Update(buf, read)
   c.md5Final(d)
 
   echo($d, "  ", param)
