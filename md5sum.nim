@@ -9,7 +9,6 @@ var
   c: MD5Context
   d: MD5Digest
   buf: array[blockSize, char]
-  read: int
 
 for param in commandLineParams():
   opened = true
@@ -20,9 +19,9 @@ for param in commandLineParams():
 
   c.md5Init()
   if opened:
-    read = 1
-    while read > 0:
-      read = file.readBuffer(buf.addr, blockSize)
+    while true:
+      let read = file.readBuffer(buf.addr, blockSize)
+      if read <= 0: break
       c.md5Update(buf, read)
   c.md5Final(d)
 
